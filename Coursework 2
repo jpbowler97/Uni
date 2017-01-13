@@ -1,0 +1,413 @@
+from sympy import *
+import sympy as sp
+from tabulate import tabulate
+import numpy as np
+
+def compute_inverse(x, modulo):
+	for y in xrange(1,modulo):
+		# print(y)
+		if x*y % modulo == 1: break #quitting the for loop cuts average number of operations
+	inverse = y
+	# print(inverse)
+	return inverse
+
+def compute_inverses(modulo):
+	inverses=[]
+	for x in xrange(1,modulo): #could quit half way through to speed up
+		inverses.append((x, compute_inverse(x, modulo)))
+	# print(inverses)
+	return inverses
+
+def Q1():
+	modulo = 5
+	example_1 = compute_inverses(modulo)
+	modulo = 17
+	example_2 = compute_inverses(modulo)
+	afile=open(r'./../../LaTeX/1.2-FieldsofPrimeOrder/Q1_example_1.tex', "wb")
+	afile.write(str(example_1))
+	afile=open(r'./../../LaTeX/1.2-FieldsofPrimeOrder/Q1_example_2.tex', "wb")
+	afile.write(str(example_2))
+
+def Q2():
+	pass
+
+def mod(x,modulo):
+    numer, denom = x.as_numer_denom()
+    # if denom == modulo:
+    return numer*mod_inverse(denom,modulo) % modulo
+
+
+def echelon_form(matrix, modulo):
+	a = sp.Matrix(matrix)
+	a = a.applyfunc(lambda x: mod(x, modulo))
+	# print(M)
+	# M.row(0) = 0
+	# M.row_op(0, lambda i, j: i/)
+	# a = Matrix([[2, 2, 0], [3, 4, 1]])
+	# a = Matrix([[1, 2, 3, 4, 5], [0, 0, 1, 2, 3], [0, 0, 0, 8, 2], [0, 0, 0, 0, 0]])
+	# print(a)
+	row=0
+	pivot_row=-1
+	pivot_col=0
+	col=0
+	next_available=0
+	n_pivots=0
+	a = np.array(a)
+	# print(a)
+
+	pivot_cols=[]
+	for iters_col in range(0, a.shape[1]):
+		for iters_row in range(pivot_row+1, a.shape[0]):
+			if a[iters_row, iters_col] == 0:
+				continue # moves down the matrix if zero entry
+			pivot_row = iters_row # pivot found
+			pivot_col = iters_col
+			n_pivots += 1 # counts number of pivots (rank)
+			# print('pivot ' + str(n_pivots) + ' found at (' + str(pivot_row) + ', ' + str(pivot_col) + ')')
+			pivot_cols.append(pivot_col)
+			# a.row_op(pivot_row, lambda i, j: i/a[pivot_row, 0]) # normalises pivot_row
+			# a.row(pivot_row) = a.row(pivot_row)/a.row(pivot_row).col(0)
+			a[pivot_row] = a[pivot_row]/a[pivot_row, pivot_col]
+			v = a[pivot_row] # pivot row 
+			# print(v)
+			for iters_row in range(pivot_row+1, a.shape[0]): # Gaussian elimination on pivot_col
+				# a[iters_row] = a[iters_row] - a[iters_row, pivot_col]*v
+				# a.row_op(iters_row, lambda i, j: i - a[pivot_row, pivot_col])
+				a[iters_row] = a[iters_row] - a[iters_row, pivot_col]*v
+				a = sp.Matrix(a)
+				a = a.applyfunc(lambda x: mod(x, modulo))
+				a.row_swap(pivot_row, n_pivots-1) # swaps to have pivots in correct order
+				pivot_row = n_pivots-1
+				a = np.array(a)
+				# print(a)
+			break
+	a = sp.Matrix(a)
+	a = a.applyfunc(lambda x: mod(x, modulo))
+	a = np.array(a)
+	print('echelon_form')
+	print(a)
+	return [a, pivot_cols]
+
+def kernel_basis(matrix, modulo): #returns a basis for the kernel (apply mod to have only positive entries?)
+	temp = echelon_form(matrix, modulo)
+	a = np.array(temp[0]) # echelon matrix
+	pivot_cols = temp[1] # pivot columns
+	cols = list(range(a.shape[1]))
+
+	non_pivot_cols = set(cols).difference(set(pivot_cols))
+	# print(non_pivot_cols)
+	basis=[]
+	length = a.shape[1] # number of columns
+	# print(length)
+	for j in non_pivot_cols:
+		k = [None] * length # initialise jth empty vector
+		# print(k)
+		for i in non_pivot_cols:
+			k[i] = 0 # zero entries at pivots
+		k[j] = 1 # one at current pivot
+		n=0 # row of matrix
+		# print(k)
+		i=0 # row of vector
+		# print(k)
+		while i < length: # index within size of vector
+			if k[i] == None:
+				k[i] = -1*a[n, j] # negation of associated matrix entry
+				n+=1
+			i+=1
+		# print(k)
+		basis.append(k)
+	# print(kernel_basis)
+	basis = sp.Matrix(basis)
+	basis = basis.applyfunc(lambda x: mod(x, modulo))
+	basis = np.array(basis).transpose()
+	# print('kernel_basis')
+	# print(basis)
+	return basis
+
+# def row_basis(matrix, modulo):
+
+
+def Q3():
+	matrix_1 = Matrix([[0, 1, 7, 2, 10], [8, 0, 2, 5, 1], [2, 1, 2, 5, 5], [7, 4, 5, 3, 0]])
+	matrix_2 = Matrix([[6, 16, 11, 14, 1, 4 ], [7, 9, 1, 1, 21, 0], [8, 2, 9, 12, 17, 7], [9, 24, 14, 3, 16, 2]])
+	
+	M1 = np.array(echelon_form(matrix_1, 11)[0])
+	# print(M1)2
+	M1_rank = len(np.where(M1.any(axis=1))[0]) # zero is considered false, all other values return true for 'any'
+	# M1 = to_latex(M1)
+	M1 = tabulate(M1, tablefmt="latex")
+	afile=open(r'./../../LaTeX/1.2-FieldsofPrimeOrder/Q3_Matrix1.tex', "wb")
+	afile.write('\\begin{bmatrix}\n')
+	afile.write(M1)
+	afile.write('\n\end{bmatrix}')
+
+	M2 = np.array(echelon_form(matrix_2, 29)[0])
+	# print(M2)
+	# M1 = to_latex(M1)
+	M2 = tabulate(M2, tablefmt="latex")
+	afile=open(r'./../../LaTeX/1.2-FieldsofPrimeOrder/Q3_Matrix2.tex', "wb")
+	afile.write(M2)
+
+def Q4():
+	matrix_1 = Matrix([[4, 6, 5, 2, 3], [5, 0, 3, 0, 1], [1, 5, 7, 1, 0], [5, 5, 0, 3, 1], [2, 1, 2, 4, 0]])
+	matrix_2 = Matrix([[3, 7, 19, 3, 9, 6], [10, 2, 20, 15, 3, 0], [14, 1, 3, 14, 11, 3], [26, 1, 21, 6, 3, 5], [0, 1, 3, 19, 0, 3]])
+
+	basis_1 = kernel_basis(matrix_1, 11)
+	basis_2 = kernel_basis(matrix_2, 29)
+
+	B1 = tabulate(basis_1, tablefmt="latex")
+	afile=open(r'./../../LaTeX/1.2-FieldsofPrimeOrder/Q4_Matrix1.tex', "wb")
+	afile.write('\\begin{bmatrix}\n')
+	afile.write(B1)
+	afile.write('\n\end{bmatrix}')
+
+	B2 = tabulate(basis_2, tablefmt="latex")
+	afile=open(r'./../../LaTeX/1.2-FieldsofPrimeOrder/Q4_Matrix2.tex', "wb")	
+	afile.write('\\begin{bmatrix}\n')
+	afile.write(B2)
+	afile.write('\n\end{bmatrix}')
+
+def Q5():
+	pass
+
+def Q6():
+	matrix = np.array(Matrix([[0, 1, 7, 2, 10], [8, 0, 2, 5, 1], [2, 1, 2, 5, 5], [7, 4, 5, 3, 0]]))
+	modulo = 11
+	print('input matrix')
+	print(matrix)
+	annihilator_basis = kernel_basis(matrix, modulo)
+	print('annihilator_basis')
+	print(annihilator_basis)
+	B = tabulate(annihilator_basis, tablefmt="latex")
+	afile=open(r'./../../LaTeX/1.2-FieldsofPrimeOrder/Q6_Annihilator.tex', "wb")
+	afile.write('\\begin{bmatrix}\n')
+	afile.write(B)
+	afile.write('\n\end{bmatrix}')
+
+	# annihilator basis (U^o)	
+	# annihilator_matrix = np.array(annihilator_basis).transpose()
+	# annihilator_matrix = np.array(annihilator_basis)
+	an_an_basis = kernel_basis(annihilator_basis.transpose(), modulo).transpose()
+	print('an_an_basis')
+	print(an_an_basis)
+	an_an_basis = echelon_form(an_an_basis, modulo)
+	print('echelon_an_an_basis')
+	print(an_an_basis)
+	A = tabulate(an_an_basis, tablefmt="latex")
+	afile=open(r'./../../LaTeX/1.2-FieldsofPrimeOrder/Q6_Uoo.tex', "wb")
+	afile.write('\\begin{bmatrix}\n')
+	afile.write(A)
+	afile.write('\n\end{bmatrix}')
+
+def sum_basis(U, V, modulo):
+	V = np.array(V).transpose()
+	U_o = kernel_basis(U, modulo).transpose()
+	print('annihilator of U')
+	print(U_o)
+	V_o = kernel_basis(V, modulo).transpose()
+	print('annihilator of V')
+	print(V_o)
+	intersect=[]
+	# zero_vector = [0] * U_o.shape[1]
+	# print('zero vector')
+	# print(zero_vector)
+	for i in range(0, U_o.shape[0]):
+		print('product')
+		print(U_o[i])
+		print(V)
+		print(U_o[i].dot(V))
+		if U_o[i].dot(V).all() == 0: # check presence in V_o
+			intersect.append(U_o[i])
+	print('intersect')
+	if len(intersect) == 0:
+		print('empty list, intersection is empty, sum is entire space.') # add obvious basis construction
+		# print('\n\n\n\n')
+		dimension = V.shape[1] # size of row vectors i.e. number of columns
+		# print(dimension)
+		sum_basis=[]
+		for i in range(0, dimension):
+			zero_vector = [0] * dimension
+			zero_vector[i] = 1
+			basis_vector = zero_vector
+			sum_basis.append(basis_vector)
+		# print('\n\n\n\n')
+		return sum_basis 
+	print(intersect)
+	intersect_basis = np.array(intersect)
+	print(intersect_basis)
+	print('intersect_basis')
+	sum_basis = kernel_basis(intersect_basis, modulo)
+	print('sum_basis')
+	return sum_basis
+
+def intersection_basis(U, V, modulo):
+	V_an_basis = kernel_basis(V, modulo).transpose()
+	U = np.array(U)
+	# print(U)
+	print('annihilator_basis')
+	print(V_an_basis)
+	intersect=[]
+	for i in range(0, V_an_basis.shape[0]):
+		print('product')
+		# print(U[i])
+		# print(V_an_basis)
+		product = V_an_basis.dot(U[i])
+		temp = sp.Matrix(product)
+		temp = temp.applyfunc(lambda x: mod(x, modulo))
+		temp = np.array(temp)
+		product = temp
+		print(product)
+		if product.all() == 0: # check presence in V_o
+			intersect.append(U[i])
+	print('intersect')
+	if len(intersect) == 0:
+		print('empty list, intersection is empty.') # add obvious basis construction
+		# exit()
+	print(intersect)
+	intersect_basis = np.array(intersect)
+
+	return intersect_basis
+
+def basis(matrix, modulo):
+	k_basis = kernel_basis(matrix, modulo)
+	basis = kernel_basis(k_basis.transpose(), modulo).transpose()
+	print('basis')
+	print(basis)
+	return basis
+
+	# an_an_basis = echelon_form(an_an_basis, 11)
+	# print('echelon_an_an_basis')
+	# print(an_an_basis)
+
+
+
+# Q6()
+# Q4()
+A_1 = Matrix([[0, 1, 7, 2, 10], [8, 0, 2, 5, 1], [2, 1, 2, 5, 5], [7, 4, 5, 3, 0]])
+B_1 = Matrix([[4, 6, 5, 2, 3], [5, 0, 3, 0, 1], [1, 5, 7, 1, 0], [5, 5, 0, 3, 1], [2, 1, 2, 4, 0]])
+modulo_1 = 11
+
+A_2 = Matrix([[6, 16, 11, 14, 1, 4 ], [7, 9, 1, 1, 21, 0], [8, 2, 9, 12, 17, 7], [9, 24, 14, 3, 16, 2]])
+B_2 = Matrix([[3, 7, 19, 3, 9, 6], [10, 2, 20, 15, 3, 0], [14, 1, 3, 14, 11, 3], [26, 1, 21, 6, 3, 5], [0, 1, 3, 19, 0, 3]])
+modulo_2 = 29
+
+A_3 = Matrix([[1, 0, 0, 0, 1, 0, 0], [0, 5, 0, 1, 6, 3, 0], [0, 0, 5, 0, 2, 0, 0], [2, 4, 0, 0, 0, 5, 1], [4, 3, 0, 0, 6, 2, 6]])
+modulo_3 = 7
+
+def Q7():
+	U = A_1
+	W = B_1
+	modulo = 11
+	U_basis = basis(U, modulo)
+	W_basis = basis(W, modulo)
+	UnW_basis = intersection_basis(U, W, modulo)
+	UplusW_basis = sum_basis(U, W, modulo)
+
+	matrix = tabulate(U_basis, tablefmt="latex")
+	afile=open(r'./../../LaTeX/1.2-FieldsofPrimeOrder/Q7_1_U_basis.tex', "wb")
+	afile.write('\\begin{bmatrix}\n')
+	afile.write(matrix)
+	afile.write('\n\end{bmatrix}')
+
+	matrix = tabulate(W_basis, tablefmt="latex")
+	afile=open(r'./../../LaTeX/1.2-FieldsofPrimeOrder/Q7_1_W_basis.tex', "wb")
+	afile.write('\\begin{bmatrix}\n')
+	afile.write(matrix)
+	afile.write('\n\end{bmatrix}')
+
+	matrix = tabulate(UnW_basis, tablefmt="latex")
+	afile=open(r'./../../LaTeX/1.2-FieldsofPrimeOrder/Q7_1_UnW_basis.tex', "wb")
+	afile.write('\\begin{bmatrix}\n')
+	afile.write(matrix)
+	afile.write('\n\end{bmatrix}')
+
+	matrix = tabulate(UplusW_basis, tablefmt="latex")
+	afile=open(r'./../../LaTeX/1.2-FieldsofPrimeOrder/Q7_1_UplusW_basis.tex', "wb")
+	afile.write('\\begin{bmatrix}\n')
+	afile.write(matrix)
+	afile.write('\n\end{bmatrix}')
+
+	U = A_2
+	W = B_2
+	modulo = 29
+	U_basis = basis(U, modulo)
+	W_basis = basis(W, modulo)
+	UnW_basis = intersection_basis(U, W, modulo)
+	UplusW_basis = sum_basis(U, W, modulo)
+
+	matrix = tabulate(U_basis, tablefmt="latex")
+	afile=open(r'./../../LaTeX/1.2-FieldsofPrimeOrder/Q7_2_U_basis.tex', "wb")
+	afile.write('\\begin{bmatrix}\n')
+	afile.write(matrix)
+	afile.write('\n\end{bmatrix}')
+
+	matrix = tabulate(W_basis, tablefmt="latex")
+	afile=open(r'./../../LaTeX/1.2-FieldsofPrimeOrder/Q7_2_W_basis.tex', "wb")
+	afile.write('\\begin{bmatrix}\n')
+	afile.write(matrix)
+	afile.write('\n\end{bmatrix}')
+
+	matrix = tabulate(UnW_basis, tablefmt="latex")
+	afile=open(r'./../../LaTeX/1.2-FieldsofPrimeOrder/Q7_2_UnW_basis.tex', "wb")
+	afile.write('\\begin{bmatrix}\n')
+	afile.write(matrix)
+	afile.write('\n\end{bmatrix}')
+
+	matrix = tabulate(UplusW_basis, tablefmt="latex")
+	afile=open(r'./../../LaTeX/1.2-FieldsofPrimeOrder/Q7_2_UplusW_basis.tex', "wb")
+	afile.write('\\begin{bmatrix}\n')
+	afile.write(matrix)
+	afile.write('\n\end{bmatrix}')
+
+	U = A_3
+	modulo = 7
+	W = kernel_basis(A_3, modulo).transpose() # transpose?
+
+	U_basis = basis(U, modulo)
+	W_basis = basis(W, modulo)
+	UnW_basis = intersection_basis(U, W, modulo)
+	UplusW_basis = sum_basis(U, W, modulo)
+
+	matrix = tabulate(U_basis, tablefmt="latex")
+	afile=open(r'./../../LaTeX/1.2-FieldsofPrimeOrder/Q7_3_U_basis.tex', "wb")
+	afile.write('\\begin{bmatrix}\n')
+	afile.write(matrix)
+	afile.write('\n\end{bmatrix}')
+
+	matrix = tabulate(W_basis, tablefmt="latex")
+	afile=open(r'./../../LaTeX/1.2-FieldsofPrimeOrder/Q7_3_W_basis.tex', "wb")
+	afile.write('\\begin{bmatrix}\n')
+	afile.write(matrix)
+	afile.write('\n\end{bmatrix}')
+
+	matrix = tabulate(UnW_basis, tablefmt="latex")
+	afile=open(r'./../../LaTeX/1.2-FieldsofPrimeOrder/Q7_3_UnW_basis.tex', "wb")
+	afile.write('\\begin{bmatrix}\n')
+	afile.write(matrix)
+	afile.write('\n\end{bmatrix}')
+
+	matrix = tabulate(UplusW_basis, tablefmt="latex")
+	afile=open(r'./../../LaTeX/1.2-FieldsofPrimeOrder/Q7_3_UplusW_basis.tex', "wb")
+	afile.write('\\begin{bmatrix}\n')
+	afile.write(matrix)
+	afile.write('\n\end{bmatrix}')
+
+# sum_basis(U, V, modulo)
+# intersection_basis(A_2, B_2, modulo_2)
+# basis(A_1, 11)
+
+def Q8():
+	pass
+
+
+
+# kernel_basis(matrix_1, 11)
+
+Q1()
+Q2()
+Q3()
+Q4()
+Q5()
+Q6()
+Q7()
+Q8()
