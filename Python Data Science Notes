@@ -1,0 +1,831 @@
+# Class Structure
+class Person:
+	department = 'School of Information'
+
+	def set_name(self, new_name):
+		self.name = new_name
+	def set_location(self, new_location):
+		self.location = new_location
+
+# No private or protected variables
+# No need to instantiate objects
+
+# functional programming - a programming paradigm in which you explicitly declare all variables which could change in a given function
+
+# map(function, iterable, ...) - return an iterator tht applies function to every iterm of iterable, yielding the results.
+
+store1 = [10.00, 11.00, ...]
+store2 = [9.00, 11.10, ...]
+cheapest = map(min, store1, store2)
+cheapest
+
+# lazy evaluation - outputs a reference value
+
+x = 'blue,red,green'
+x.split(",")
+
+# ['blue', 'red', 'green']
+
+a,b,c = x.split(",")
+a
+
+# 'blue'
+
+word = "This is some random text"
+words2 = word.split(" ")
+words2
+#['This', 'is', 'some', 'random', 'text']
+
+firstname = 'Christopher Arthur Hansen Brooks'.split(' ')[0]
+lastname = 'Christopher Arthur Hansen Brooks'.split(' ')[-1]
+print(firstname)
+print(lastname)
+# Christopher Brooks
+
+people = ['Dr. Christopher Brooks', '...', ...]
+
+def split_title_and_name(person):
+	title = person.split()[0]
+	lastname = person.splot()[-1]
+	return '{} {}'.format(title, lastname)
+
+list(map(split_title_and_name, people))
+
+# lambas are anonymous functions (ease)
+
+my_function = lambda a, b, c : a + b
+my_function[1, 2, 3]
+
+# limited to simple expression
+
+#List Comprehensions
+
+my_list = []
+for number in range(0,1000):
+	if number % 2:
+		my_list.append(number)
+
+# is equivalent to
+
+my_list = [number for number in range(0,1000) if number % 2 == 0]
+
+# example 
+
+def times_tables():
+    lst = []
+    for i in range(10):
+        for j in range (10):
+            lst.append(i*j)
+    return lst
+
+times_tables() == [j*i for i in range(10) for j in range(10)]
+
+# example
+
+lowercase = 'abcdefghijklmnopqrstuvwxyz'
+digits = '0123456789'
+
+correct_answer = [a+b+c+d for a in lowercase for b in lowercase for c in digits for d in digits]
+
+correct_answer[:50] # Display first 50 ids
+
+# Numpy
+
+import numpy as numpy
+
+mylist = [1, 2, 3]
+x = np.array(mylist)
+x
+
+y = np.array([4, 5, 6])
+
+m = np.array([[7, 8, 9], [10, 11, 12]])
+
+m.shape
+# (2,3)
+
+n = np.arange(0, 30, 2) # start at - count up by 2 stop beore 30
+
+n = n.reshape(3, 5) # reshape array to be 3x5
+
+o = np.linspace(0, 4, 9) # return 9 evenly spaced values from 0 to 4
+
+o.resize(3, 3)
+
+np.ones((3, 2))
+
+np.zeros((2, 3))
+np.eye(3)
+np.diag(y)
+np.array([1, 2, 3] * 3)
+np.repeat([1, 2, 3], 3) # array([1, 1, 1, 2, 2, 2, 3, 3, 3])
+np.vstack([p, 2*p]) #stack vertically
+np.hstack([p, 2*p]) #stac horizontally
+
+#all operations are done cpt-wise
+
+x.dot(y)
+len(z) # number of rows
+z.T #transpose
+x.dtype #data type
+x.astype('f') # cast type (float)
+#other functions are sum, min, max, mean, std, argmax,argmin
+
+# Be careful copying and modifying arrays in NumPy
+# :3 means before 3; [:] means the entire array, i.e. every cpt
+#editing a section of r (even under the guise of a different variable name) will affect r
+
+r_copy = r.copy()
+#then edit the copy
+
+#lists are mutable, tuples are immutable
+#strings are immutbale however variables are mutable
+# tuples are declared by ()
+# ['a', 'b', 'c'] + [1, 2, 3] = ['a', 'b', 'c', 1, 2, 3]
+# addition concatenates lists
+
+import pandas as pd
+pd.series?
+
+animals = [ 'Tiger', 'Bear', 'Moose' ]
+pd.Series(animals)
+# 0    Tiger
+# 1     Bear
+# 2    Moose
+# dtype: object
+
+numbers = [1, 2, 3]
+pd.Series(numbers)
+# 0    1
+# 1    2
+# 2    3
+# dtype: int64
+
+animals = ['Tiger', 'Bear', None]
+pd.Series(animals)
+# 0    Tiger
+# 1     Bear
+# 2     None
+# dtype: object
+
+np.nan == np.nan
+# false
+
+np.isnan(np.nan)
+#true
+
+sports = {'Archery': 'Bhutan', 'Golf': 'Scotland', 'Sumo': 'Japan', 'Taekwondo': 'SouthKorea'}
+s = pd.Series(sports)
+# series can act on lists or dictionaries
+
+s.index
+# Index(['Archery', 'Golf', 'Sumo', ...], dtype = 'object')
+
+s.iloc[3] # value
+# 'South Korea'
+
+s.loc['Golf'] # key
+# 'Scotland'
+
+# attributes not methods therefore use [] not ()
+
+s[3] #can use integer key indexing
+#South Korea
+
+#Two alternatives
+
+total = 0
+for item in s:
+	total+=item
+print(total)
+
+#or
+
+import numpy as np
+
+total = np.sum(s)
+print(total)
+
+#second takes advantage of multitasking and is much faster
+
+s = pd.Series(np.random.randint(0,1000,10000))
+s.head() # first 5 items of 
+len(s) # rows
+
+#magic functions begin % or %%
+
+%%timeit -n 100
+summary = 0
+for item in s:
+	summary+=item
+
+%%timeit -n 100
+summary = np.sum(s)
+
+s+=2 #adds 2 to every value of s using broadcasting
+
+import pandas as pd
+
+df = pd.DataFrame([purchase_1, purchase_2, purchase_3], index['Store 1', 'Store 1', 'Store 2'])
+df.head()
+
+df = pd.dataFrame([series objects], index = ['indexnames', ...])
+
+df.loc['Store 2'] #outputs table with index 'Store 2'
+df.T.loc['Cost']
+df['Item Purchased']
+df.loc[:,['Name', 'Cost']]
+df.loc['Store 1']['Cost']
+df.drop('Store 1') # Creates a copy with the 'Store 1' row(s) removed
+
+copy_df = df.copy()
+copy_df = copy_df.drop('Store 1')
+copy_df
+
+del copy_df['Name'] #permanent
+
+df['Location'] = None #adds column
+
+df = pd.read_csv('olympics.csv')
+df.head()
+
+df = pd.read_csv('olympics.csv', index_col = 0 , skiprows = 1)
+#make 0 column as index
+#skiprows = 1 means column header starts after skipping first row
+!cat... # ! sends the code directly to linux
+
+df.columns
+
+for col in df.columns:
+    if col[:2]=='01':
+        df.rename(columns={col:'Gold' + col[4:]}, inplace=True)
+    if col[:2]=='02':
+        df.rename(columns={col:'Silver' + col[4:]}, inplace=True)
+    if col[:2]=='03':
+        df.rename(columns={col:'Bronze' + col[4:]}, inplace=True)
+    if col[:1]=='№':
+        df.rename(columns={col:'#' + col[1:]}, inplace=True) 
+
+df.head()
+
+# boolean masking - efficient querying
+# a 1 or 2 dimensional boolean array
+# think of as a comb 
+
+df['Gold'] > 0
+#prints boolean series where value of each cell is either ture or false according to the query
+
+# 'where' function overlays this over the data frame
+only_gold = df.where(df['Gold'] > 0)
+only_gold.head()
+
+only_gold['Gold'].count()
+df['Gold'].count()
+
+only_gold = only_gold.dropna()
+
+#or
+
+only_gold = df[df['Gold']>0])
+
+len(df[(df['Gold']>0) | (df['Gold.1']>0]))
+#boolean mask
+#encase in parenthesis to preserve oreder of operations
+
+#chanign index
+df['country'] = df.index #saves current index data
+df = df.set_index('Gold') #changes index
+df.head()
+
+df = df.reset_index()
+
+#multilevel index
+
+df = pd.read_csv('')
+
+#unique values
+df['SUMLEV'].unique()
+
+#array([40, 50])
+columns_to_keep = [ '', ....]
+df = df[columns_to_keep]
+
+df = df.set_index(['STName', 'CTName']) #multiindex outermost column is level 0
+df
+
+df.loc('Michigan, Washtenaw County')
+df.loc[ [('Michigan, Washtenaw County'), ('Michigan, New England County')]]
+
+df = df.set_index([df.index, 'Name'])
+df.index.names = ['Location', 'Name']
+df = df.append(pd.Series(data={'Cost': 3.00, 'Item Purchased': 'Kitty Food'}, name=('Store 2', 'Kevyn')))
+df
+
+
+#{} for dictionaries
+
+#finds the index of the maximum value in a particular column
+def answer_one():    
+    max_golds = df['Gold'].unique().max()
+    return df.loc[df.Gold == max_golds].index[0]
+answer_one()
+
+#defines a new column and finds maximum associated index
+def answer_two():
+    df['Difference'] = df['Gold'] - df['Gold.1']
+    max_difference = df['Difference'].unique().max()
+    return df.loc[df.Difference == max_difference].index[0]   
+answer_two()
+
+# subject to initial criteria, does similar to ^^
+def answer_three():
+    winners = df[(df['Gold']>0) & (df['Gold.1']>0)]
+    winners['relative_difference'] = (winners['Gold'] - winners['Gold.1'])/winners['Gold.2']
+    max_relative_difference = winners['relative_difference'].unique().max()
+    return winners.loc[winners.relative_difference == max_relative_difference]    
+answer_three()
+
+# define a new column
+def answer_four():
+    df['Points'] = df['Gold.2']*3 + df['Silver.2']*2 + df['Bronze.2']
+    return df['Points']
+answer_four()
+
+def answer_five():
+#     print(census_df)
+    census_df = census_df[census_df['SUMLEV'] == 40]
+    print(census_df)
+
+
+#     print(len(census_df['STNAME'].unique()))
+    return "YOUR ANSWER HERE"
+answer_five()
+
+#apply criteria, change index, find frequency of each index, return maximum frequency index
+def answer_five():
+    state_df = census_df[census_df['SUMLEV'] == 50]
+    state_df = state_df.set_index('STNAME')   
+    counties_by_state = {}
+    for s in state_df.index.unique():
+        counties_by_state[len(state_df.loc[s])] = s
+#     print(counties_by_state)
+    return counties_by_state.get(max(counties_by_state))
+answer_five()
+
+#think about creating a boolean mask
+
+def answer_six():
+    state_df = census_df[census_df['SUMLEV'] == 50]
+    columns_to_keep = ['STNAME', 'CENSUS2010POP']
+    state_df = state_df[columns_to_keep]
+    state_df = state_df.set_index('STNAME', 'CENSUS2010POP')   
+#     print(state_df)
+#     counties_by_state = {}
+    for s in state_df.index.unique():
+        print(state_df.loc[s]['CENSUS2010POP'].nlargest(3))
+    return "YOUR ANSWER HERE"
+answer_six()
+
+# state_df.sort_values(by='CENSUS2010POP')
+
+DF = DF.set_index
+df = df.sort_index()
+
+df = df.reset_index()
+df = df.set_index(['time', 'user'])
+
+import numpy as np
+
+def answer_seven():
+    state_df = census_df[census_df['SUMLEV'] == 50]
+
+    state_df['min'] = np.amin(state_df[['POPESTIMATE2010', 'POPESTIMATE2011', 'POPESTIMATE2012', 'POPESTIMATE2013', 'POPESTIMATE2014', 'POPESTIMATE2015']],axis = 1)
+
+    state_df['max'] = np.amax(state_df[['POPESTIMATE2010', 'POPESTIMATE2011', 'POPESTIMATE2012', 'POPESTIMATE2013', 'POPESTIMATE2014', 'POPESTIMATE2015']],axis = 1)
+
+    answ=np.argmax(state_df['max']-state_df['min'])
+
+    return state_df.loc[answ]['CTYNAME']
+answer_seven()
+
+def answer_eight():
+    df = census_df[census_df['SUMLEV'] == 50]
+    state_df = df[((df['REGION']==1)|(df['REGION']==2))&(df['CTYNAME'].str.contains('Washington'))&(df['POPESTIMATE2015']>df['POPESTIMATE2014'])]
+    columns_to_keep = ['STNAME', 'CTYNAME']
+    state_df = state_df[columns_to_keep]
+    return state_df.dropna()
+answer_eight()
+
+# def answer_six():
+    
+#     state_df = census_df[census_df['SUMLEV']==50]          
+#     state_df = state_df.groupby('STNAME')['CENSUS2010POP'].nlargest(3)
+#     for s in state_df['STNAME']:
+#         t = state_df['STNAME'].sum().nlargest(3)
+#     return state_df
+def answer_six():
+
+
+    df=census_df[census_df['SUMLEV'] == 50]
+    f = df.groupby("STNAME").apply(lambda x: x.nlargest(3,"CENSUS2010POP").sum())
+    f.sort_values("CENSUS2010POP", ascending = False, inplace = True)
+    lime = []
+    for s in f.index.unique():
+        lime.append(s)
+    fine = lime[0:3]
+    return fine
+answer_six()
+
+
+#index on merging field
+
+# Q1
+import pandas as pd
+
+def answer_one():
+    energy = pd.read_excel('Energy Indicators.xls', skiprows=17, skipfooter=38)
+    energy.drop(energy.columns[[0, 1]], axis=1, inplace=True)
+#     energy = energy.dropna()
+    energy.columns = {'Country', 'Energy Supply', 'Energy Supply per Capita', '% Renewable'}
+#     print(energy.columns)
+    energy['Energy Supply']*=1000000
+#     print(energy.tail())
+#     print(energy.head())
+    energy = energy.convert_objects(convert_numeric=True)
+    energy['Country'] = energy['Country'].map(lambda x: x.rstrip('0123456789101112131415161718192021222324252627282930313233'))
+    energy.set_index('Country', inplace=True)
+    energy.rename(index={"Republic of Korea": "South Korea",
+        "United States of America": "United States", "Viet nam": "Vietnam",
+        "United Kingdom of Great Britain and Northern Ireland": "United Kingdom", 
+        "China, Hong Kong Special Administrative Region": "Hong Kong", "Bolivia (Plurinational State of)": "Bolivia",
+        "Venezuela (Bolivarian Republic of)": "Venezuela", "China, Macao Special Administrative Region": "Macao", 
+        "Falkland Islands (Malvinas)": "Falkland Islands", "Iran (Islamic Republic of)": "Iran", "Micronesia (Federated States of)": "Micronesia", "Sint Maarten (Dutch part)": "Sint Maarten"}, inplace=True)
+    energy = energy.reset_index() 
+#     print(energy[180:])
+    GDP = pd.read_csv('world_bank.csv', skiprows=4)
+    GDP.set_index('Country Name', inplace=True)
+    GDP.rename(index={"Korea, Rep.": "South Korea", 
+    "Iran, Islamic Rep.": "Iran",
+    "Hong Kong SAR, China": "Hong Kong"}, inplace=True) 
+#     print(GDP.head())
+    ScimEn = pd.read_excel('scimagojr-3.xlsx')
+    temp = pd.merge(energy, GDP, how='inner', left_on='Country', right_index=True)
+    df = pd.merge(temp, ScimEn, how='inner', left_on='Country', right_on='Country')
+#     print(df.columns)
+#     columns[7], axis=1, inplace=True)
+    columns_to_keep = ['Country', 'Rank', 'Documents', 'Citable documents', 'Citations', 'Self-citations', 'Citations per document', 'H index', 'Energy Supply', 'Energy Supply per Capita', '% Renewable', '2006', '2007', '2008', '2009', '2010', '2011', '2012', '2013', '2014', '2015']
+    df = df[columns_to_keep]
+    df.set_index('Country', inplace=True)
+    df = df[df['Rank']<=15]
+    df.sort('Rank', inplace=True)
+    return df
+# answer_one()
+
+def answer_two():
+    energy = pd.read_excel('Energy Indicators.xls', skiprows=17, skipfooter=38)
+    energy.drop(energy.columns[[0, 1]], axis=1, inplace=True)
+#     energy = energy.dropna()
+    energy.columns = {'Country', 'Energy Supply', 'Energy Supply per Capita', '% Renewable'}
+#     print(energy.columns)
+    energy['Energy Supply']*=1000000
+#     print(energy.tail())
+#     print(energy.head())
+    energy = energy.convert_objects(convert_numeric=True)
+    energy['Country'] = energy['Country'].map(lambda x: x.rstrip('0123456789101112131415161718192021222324252627282930313233'))
+    energy.set_index('Country', inplace=True)
+    energy.rename(index={"Republic of Korea": "South Korea",
+        "United States of America": "United States", "Viet nam": "Vietnam",
+        "United Kingdom of Great Britain and Northern Ireland": "United Kingdom", 
+        "China, Hong Kong Special Administrative Region": "Hong Kong", "Bolivia (Plurinational State of)": "Bolivia",
+        "Venezuela (Bolivarian Republic of)": "Venezuela", "China, Macao Special Administrative Region": "Macao", 
+        "Falkland Islands (Malvinas)": "Falkland Islands", "Iran (Islamic Republic of)": "Iran", "Micronesia (Federated States of)": "Micronesia", "Sint Maarten (Dutch part)": "Sint Maarten"}, inplace=True)
+    energy = energy.reset_index() 
+#     print(energy[180:])
+    GDP = pd.read_csv('world_bank.csv', skiprows=4)
+    GDP.set_index('Country Name', inplace=True)
+    GDP.rename(index={"Korea, Rep.": "South Korea", 
+    "Iran, Islamic Rep.": "Iran",
+    "Hong Kong SAR, China": "Hong Kong"}, inplace=True) 
+#     print(GDP.head())
+    ScimEn = pd.read_excel('scimagojr-3.xlsx')
+    temp1 = pd.merge(energy, GDP, how='outer', left_on='Country', right_index=True)
+    df1 = pd.merge(temp1, ScimEn, how='outer', left_on='Country', right_on='Country')
+    temp2 = pd.merge(energy, GDP, how='inner', left_on='Country', right_index=True)
+    df2 = pd.merge(temp2, ScimEn, how='inner', left_on='Country', right_on='Country')
+    number_of_lost_entries = len(df1) - len(df2)
+    return number_of_lost_entries
+# answer_two()
+
+def answer_three():
+    Top15 = answer_one()
+    avgGDP = Top15[["2006", "2007", "2008", "2009", "2010", "2011", "2012", "2013", "2014", "2015"]].mean(axis=1)
+    return avgGDP.order(ascending=False)
+# answer_three()
+
+#axis = 0 (columns), axis = 1 (rows)
+
+def answer_four():
+    Top15 = answer_one()
+#     print(Top15)
+    sixth_GDP = answer_three().index[5]
+    row = Top15[Top15.index == sixth_GDP]
+#     print(row)
+    change = row['2015'] - row['2006']
+#     print(change.dtype)
+    return change[0]
+# answer_four()
+
+def answer_five():
+    Top15 = answer_one()
+#     print(Top15)
+    mean = Top15['Energy Supply per Capita'].mean()
+    return mean
+# answer_five()
+
+def answer_six():
+    Top15 = answer_one()
+#     print(Top15)
+    max_renewable = Top15['% Renewable'].max()
+    country = Top15[Top15['% Renewable'] == max_renewable].index[0]
+    country_percentage = (country, max_renewable)
+    return country_percentage
+# answer_six()
+
+def answer_seven():
+    Top15 = answer_one()
+#     print(Top15)
+    Top15['Ratio'] = Top15['Self-citations']/Top15['Citations']
+#     print(Top15.head())
+    max_ratio = Top15['Ratio'].max()
+    country = Top15[Top15['Ratio'] == max_ratio].index[0]
+    country_ratio = (country, max_ratio)
+    return country_ratio
+# answer_seven()
+
+def answer_eight():
+    Top15 = answer_one()
+#     print(Top15)
+    Top15['Population'] = Top15['Energy Supply']/Top15['Energy Supply per Capita']
+#     print(Top15.head())
+    pop_3 = Top15['Population'].nlargest(3)[2]
+#     print(pop_3)
+    country = Top15[Top15['Population'] == pop_3].index[0]    
+    return country
+# answer_eight()
+
+def answer_nine():
+    Top15 = answer_one()
+    Top15['Population'] = Top15['Energy Supply']/Top15['Energy Supply per Capita']
+#     print(Top15)
+    Top15['Citations_per_Person'] = Top15['Citable documents']/Top15['Population']
+#     print(Top15.head())
+    return Top15.corr()['Citations_per_Person']['Energy Supply per Capita']
+# answer_nine()
+
+def plot9():
+    import matplotlib as plt
+    %matplotlib inline
+    
+    Top15 = answer_one()
+    Top15['PopEst'] = Top15['Energy Supply'] / Top15['Energy Supply per Capita']
+    Top15['Citable docs per Capita'] = Top15['Citable documents'] / Top15['PopEst']
+    Top15.plot(x='Citable docs per Capita', y='Energy Supply per Capita', kind='scatter', xlim=[0, 0.0006])
+
+(df.set_index('STNAME').groupby(level=0)['POPESTIMATE2010','POPESTIMATE2011']
+    .agg({'avg': np.average, 'sum': np.sum}))
+
+def answer_ten():
+    import numpy as np
+    Top15 = answer_one()
+    Top15['HighRenew'] = np.where(Top15['% Renewable'] > Top15['% Renewable'].median(), 1, 0)
+#     print(Top15)
+    Top15.sort('Rank', ascending=True, inplace=True)
+    return Top15['HighRenew']
+answer_ten()
+
+def answer_eleven():
+    import numpy as np
+    ContinentDict  = {'China':'Asia', 
+                  'United States':'North America', 
+                  'Japan':'Asia', 
+                  'United Kingdom':'Europe', 
+                  'Russian Federation':'Europe', 
+                  'Canada':'North America', 
+                  'Germany':'Europe', 
+                  'India':'Asia',
+                  'France':'Europe', 
+                  'South Korea':'Asia', 
+                  'Italy':'Europe', 
+                  'Spain':'Europe', 
+                  'Iran':'Asia',
+                  'Australia':'Australia', 
+                  'Brazil':'South America'}
+    Top15 = answer_one()
+    Top15['Population'] = Top15['Energy Supply']/Top15['Energy Supply per Capita']
+    Top15.reset_index(inplace=True)
+    Top15['Continent'] = Top15['Country'].map(ContinentDict)
+#     df['D'] = df['U'].map(d)
+#     Top15.groupby(ContinentDict)
+#     Top15['Continent'] = ContinentDict
+#     Top15.groupby('Continent')
+    pop_stats = (Top15.set_index('Continent').groupby(level=0)['Population']
+          .agg({'size': len, 'sum':np.sum, 'mean': np.average, 'std': np.std})).fillna(0)
+#     print(Top15)
+    pop_stats = pop_stats[['size', 'sum', 'mean', 'std']]
+    return pop_stats
+answer_eleven()
+
+def answer_twelve():
+    Top15 = answer_one()
+#     print(Top15)
+    Top15 = Top15.reset_index()
+
+    def fun(value):
+        if value<10:
+            return 0
+        if value<20:
+            return 1
+        if value<30:
+            return 2
+        if value<40:
+            return 3
+        return 4
+    
+    ContinentDict  = {'China':'Asia', 
+                  'United States':'North America', 
+                  'Japan':'Asia', 
+                  'United Kingdom':'Europe', 
+                  'Russian Federation':'Europe', 
+                  'Canada':'North America', 
+                  'Germany':'Europe', 
+                  'India':'Asia',
+                  'France':'Europe', 
+                  'South Korea':'Asia', 
+                  'Italy':'Europe', 
+                  'Spain':'Europe', 
+                  'Iran':'Asia',
+                  'Australia':'Australia', 
+                  'Brazil':'South America'}
+    Top15['Continent'] = Top15['Country'].map(ContinentDict)
+    Top15['% Bins'] = Top15['% Renewable'].map(fun)
+#     Top15['frequency'] = Top15['% Bins'].map(len)
+    Top15.sort('% Bins', inplace=True)
+    Top15.sort('Continent', inplace=True)
+    df = Top15.set_index(['Continent', '% Bins'])
+    df['Count'] = 0
+    series = df.groupby(level=[0,1]).count()['Count']
+#     print(df['Count'])
+    return series
+answer_twelve()
+
+def answer_thirteen():
+    Top15 = answer_one()
+    Top15['Population'] = Top15['Energy Supply']/Top15['Energy Supply per Capita']
+    Top15.reset_index(inplace=True)
+    columns_to_keep = ['Country', 'Population']
+    PopEst = Top15[columns_to_keep]
+    float_format=lambda x: '{:,}'.format(x)
+    PopEst['Population'] = PopEst['Population'].apply(float_format)
+    PopEst.set_index('Country', inplace=True)
+#     df['Population'] = '{:,}'.format(df['Population'])
+    return PopEst
+# answer_thirteen()
+
+import pandas as pd
+import numpy as np
+
+def get_list_of_university_towns():
+    '''Returns a DataFrame of towns and the states they are in from the 
+    university_towns.txt list. The format of the DataFrame should be:
+    DataFrame( [ ["Michigan", "Ann Arbor"], ["Michigan", "Yipsilanti"] ], 
+    columns=["State", "RegionName"]  )
+    
+    The following cleaning needs to be done:
+
+    1. For "State", removing characters from "[" to the end.
+    2. For "RegionName", when applicable, removing every character from " (" to the end.
+    3. Depending on how you read the data, you may need to remove newline character '\n'. '''
+    
+    univ = pd.read_csv("university_towns.txt", sep="\n", header = None)[0]
+#     print(univ)
+    univ = univ.str.split('[').str[0]
+    list_of_states = univ[univ.str.contains('\(') == False].tolist()
+#     print(states)
+#     print(univ)
+    cities = []
+
+    for line in univ:
+        if line in list_of_states:
+            state = line
+        else:
+            cities.append((state, line))
+
+    df = pd.DataFrame(cities)
+    df = df.rename(columns = {0: 'State', 1: 'RegionName'})
+    df['RegionName'] = df['RegionName'].str.split('\(').str[0]
+#     print(df)
+    return 
+get_list_of_university_towns()
+
+def get_recession_start():
+    '''Returns the year and quarter of the recession end time as a 
+    string value in a format such as 2005q3'''
+    recess = pd.read_excel('gdplev.xls', sep="\n", skiprows=8, header = None)
+#     print(recess[4].apply(lambda x: x[:-2]))
+    recess = recess[recess[4].apply(lambda x: x[:-2]).astype(float) >= 2000]
+    columns_to_keep = [4, 6]
+    recess = recess.reset_index()[columns_to_keep]
+    recess = recess.rename(columns = {4: 'Quarter', 6: 'GDP'})
+#     print(recess['GDP'][1])
+#     print(recess[30:])
+    for i in range (0, len(recess)-2):
+        if ((recess['GDP'][i+2] - recess['GDP'][i+1] < 0) & (recess['GDP'][i+1] - recess['GDP'][i] < 0)):
+#             print('recession at ' + str(i) + ' !') 
+            break
+#     print(recess['Quarter'][i])
+#     print('Done')
+    return recess['Quarter'][i]
+get_recession_start()
+
+def get_recession_end():
+    '''Returns the year and quarter of the recession end time as a 
+    string value in a format such as 2005q3'''
+    recess = pd.read_excel('gdplev.xls', sep="\n", skiprows=8, header = None)
+#     print(recess[4].apply(lambda x: x[:-2]))
+    recess = recess[recess[4].apply(lambda x: x[:-2]).astype(float) >= 2000]
+    columns_to_keep = [4, 6]
+    recess = recess.reset_index()[columns_to_keep]
+    recess = recess.rename(columns = {4: 'Quarter', 6: 'GDP'})
+#     print(recess['GDP'][1])
+#     print(recess[30:])
+    for i in range (0, len(recess)-2):
+        if ((recess['GDP'][i+2] - recess['GDP'][i+1] < 0) & (recess['GDP'][i+1] - recess['GDP'][i] < 0)):
+#             print('recession at ' + str(i) + ' !') 
+            break
+    for j in range (i+2, len(recess)-2):
+        if ((recess['GDP'][j-1] - recess['GDP'][j-2] > 0) & (recess['GDP'][j] - recess['GDP'][j-1] > 0)):
+            break
+    return recess['Quarter'][j]
+get_recession_end()
+
+def get_recession_bottom():
+    '''Returns the year and quarter of the recession bottom time as a 
+    string value in a format such as 2005q3'''
+    recess = pd.read_excel('gdplev.xls', sep="\n", skiprows=8, header = None)
+#     print(recess[4].apply(lambda x: x[:-2]))
+    recess = recess[recess[4].apply(lambda x: x[:-2]).astype(float) >= 2000]
+    columns_to_keep = [4, 6]
+    recess = recess.reset_index()[columns_to_keep]
+    recess = recess.rename(columns = {4: 'Quarter', 6: 'GDP'})
+#     print(recess['GDP'][1])
+#     print(recess[30:])
+    for i in range (0, len(recess)-2):
+        if ((recess['GDP'][i+2] - recess['GDP'][i+1] < 0) & (recess['GDP'][i+1] - recess['GDP'][i] < 0)):
+#             print('recession at ' + str(i) + ' !') 
+            break
+    for j in range (i+2, len(recess)-2):
+        if ((recess['GDP'][j-1] - recess['GDP'][j-2] > 0) & (recess['GDP'][j] - recess['GDP'][j-1] > 0)):
+            break
+#     print(recess[i:j])
+#     print(min(recess['GDP'][i:j]))
+    minimum = recess['Quarter'][recess[(recess['GDP'] == [min(recess['GDP'][i:j])])].index[0]]
+    return minimum
+get_recession_bottom
+
+def convert_housing_data_to_quarters():
+    '''Converts the housing data to quarters and returns it as mean 
+    values in a dataframe. This dataframe should be a dataframe with
+    columns for 2000q1 through 2016q3, and should have a multi-index
+    in the shape of ["State","RegionName"].
+    
+    Note: Quarters are defined in the assignment description, they are
+    not arbitrary three month periods.
+    
+    The resulting dataframe should have 67 columns, and 10,730 rows.
+    '''
+    df = pd.read_csv('City_Zhvi_AllHomes.csv')
+#     print(df)
+#     print(df.columns)
+    df = (df.drop(df.columns[0], axis=1)
+            .drop(df.columns[3:50], axis=1))
+#     print(df.shape)
+    df = df.replace({'State': states})
+    df = (df.sort('RegionName')
+            .sort('State'))
+    df = df.set_index(['State', 'RegionName'])
+    df.columns = pd.to_datetime(df.columns)
+#     df = df['2000':]
+    df = df.resample('3M', axis=1, convention={}).mean()
+    df = df.drop(df.columns[0], axis=1) 
+    for i in range (0, len(df.columns)):
+        if i%4 == 0:
+            df.rename(columns={df.columns[i]: '200' + str(int((i/4))) + 'q1'}, inplace=True)
+        if i%4 == 1:
+            df.rename(columns={df.columns[i]: '200' + str(int((i/4))) + 'q2'}, inplace=True)
+        if i%4 == 2:
+            df.rename(columns={df.columns[i]: '200' + str(int((i/4))) + 'q3'}, inplace=True)
+        if i%4 == 3:
+            df.rename(columns={df.columns[i]: '200' + str(int((i/4))) + 'q4'}, inplace=True)
+#     print(df.head())
+    return df
+convert_housing_data_to_quarters()
