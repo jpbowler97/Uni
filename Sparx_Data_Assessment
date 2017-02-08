@@ -1,0 +1,125 @@
+
+import pandas as pd
+import numpy as np
+import matplotlib as plt
+
+df = pd.read_csv("~/Documents/Applications/sparx_assessment.txt")
+
+# 1.
+print(df['date'].max())
+
+# 2.
+print(df.columns)
+pupil_100 = df['pupilName'][df[(df['pupilId'] == 100)].index[0]]
+print(pupil_100)
+
+# 3.
+df_pupil_100 = df[df['pupilId'] == 100]
+print(len(df_pupil_100))
+
+# 4.
+df_JW = df[df['pupilName'] == 'JakeWalker']
+number_incorrect = len(df_JW[df_JW['correct'] == False])
+total_responses = 162
+print(df_JW.head()))
+proportion_incorrect = float(number_incorrect)/float(total_responses)
+answer = round(proportion_incorrect, 3)
+print(answer)
+# print(number_incorrect)
+
+# 5.
+unused_values=[]
+for i in range(1, 162):
+	if len(df[df['pupilId'] == i]) == 0:
+		unused_values.append(i)
+print(len(unused_values))
+print(sum(unused_values))
+
+# 6.
+df_ER = df[df['pupilName'] == 'EvaRobinson']
+df_ERS = df_ER[df_ER['topic'] == 'algebra.sequences']
+print(len(df_ERS))
+print(round(df_ERS['stage'].mean(), 3))
+
+# 7.
+temp_df_1 = df[df['date'] == '2013-01-10']
+beginning = min(temp_df_1['timeSec'])
+
+temp_df_2 = df[df['date'] == '2013-01-11']
+end = max(temp_df_2['timeSec'])
+
+print(beginning)
+print(end)
+print(end-beginning)
+
+# 8.
+temp_df = df[df['answeringTime'] < 250]
+df_aT = temp_df['answeringTime']
+hist = df_aT.hist(bins=60)
+fig = hist.get_figure()
+fig.savefig('./figure.pdf')
+
+# 9.
+print(int(round(len(df['answeringTime'])*0.9, 0)))
+print(df['answeringTime'].head())
+temp_df = df
+temp_df.sort_values('answeringTime', ascending=True, inplace=True)
+temp_df = temp_df.reset_index()
+print(temp_df['answeringTime'].head())
+print(temp_df['answeringTime'][int(round(len(df['answeringTime'])*0.9, 0))])
+
+# I think this one might be wrong because it doesn't visually appear to agree with the histogram
+# print(temp_df['answeringTime'][0])
+
+# 10.
+df_date = df['date'].value_counts()
+print(df_date)
+most_responses = max(df_date)
+print(most_responses)
+best_date = df_date[df_date == most_responses]
+print(best_date)
+
+# 11.
+print(df[df['date'] == '2013-01-10'].head())
+timesec_1100 = 817200 # calculated by hand using a reference point from table
+timesec_1215 = timesec_1100 + 75*60
+df_best_date = df[(df['date'] == '2013-01-10')&(df['timeSec'] > timesec_1100)&(df['timeSec'] < timesec_1215)]
+print(df_best_date.head())
+print(len(df_best_date))
+
+
+# 12.
+timesec_1100 = 817200 # calculated by hand using a reference point from table
+timesec_1215 = timesec_1100 + 75*60
+sparx_cut = df[(df['date'] == '2013-01-10')&(df['timeSec'] > timesec_1100)&(df['timeSec'] < timesec_1215)]
+print(sparx_cut['topic'].value_counts())
+
+# 13.
+sparx_cut = df[(df['date'] == '2013-01-10')&(df['timeSec'] > timesec_1100)&(df['timeSec'] < timesec_1215)]
+print(sparx_cut['topic'].value_counts())
+
+# 14., 15.
+sparx_cut_2 = sparx_cut[(sparx_cut['topic'] != 'fdp.fdp')&(sparx_cut['topic'] != 'measures')]
+print(len(sparx_cut_2))
+print(sparx_cut_2.head())
+print(sparx_cut_2['pupilName'].value_counts())
+sparx_cut_2.set_index('pupilName', inplace=True)
+
+def proportion_correct(x):
+	total_responses = float(len(x))
+	number_correct = float(len(x[x['correct'] == True]))
+	answer = number_correct/total_responses
+	return answer
+
+columns_to_keep = ['pupilId', 'correct']
+sc3 = sparx_cut_2[columns_to_keep].groupby('pupilId')
+# .set_index('pupilName')
+# sc3 = sc3.groupby('pupilName')
+sc3 = sc3.apply(lambda x: proportion_correct(x))
+best_3 = sc3.nlargest(3)
+worst_3 = sc3.nsmallest(3)
+
+print(best_3)
+print(sum(best_3.index))
+print(worst_3)
+print(sum(worst_3.index))
